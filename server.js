@@ -29,13 +29,26 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+app.get("/api/", 
+  (req, res) => {
+    var unix = new Date().getTime();
+    var utc = new Date().toUTCString();
+
+    res.json({
+      "unix" : unix,
+      "utc" : utc
+    });
+
+  }
+);
+
 app.get("/api/:date", 
   (req, res) => {
     var strDate = req.params.date;
 
     var unix = new Date(strDate).getTime();
     var utc = new Date(strDate).toUTCString();
-    
+
     if (unix == null) {
       res.json({
         "unix" : unix,
