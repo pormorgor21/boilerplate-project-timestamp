@@ -13,6 +13,7 @@ const port = process.env.PORT || 3000;
 // so that your API is remotely testable by FCC 
 var cors = require('cors');
 const res = require('express/lib/response');
+const { parse } = require('dotenv');
 app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 204
 
 // http://expressjs.com/en/starter/static-files.html
@@ -29,41 +30,44 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.get("/api/", 
-  (req, res) => {
-    var unix = new Date().getTime();
-    var utc = new Date().toUTCString();
-
+app.get("/api/", (req, res) => {
     res.json({
-      "unix" : unix,
-      "utc" : utc
+      "unix" : new Date().getTime(),
+      "utc" : new Date().toUTCString()
     });
 
   }
 );
 
-app.get("/api/:date", 
-  (req, res) => {
-    var strDate = req.params.date;
+app.get("/api/:date", (req, res) => {
+  let responObj = {}
+  let dateString = req.params.date
+  let timeStamp
+  let timeStampUnix
+  let timeStampUTC
+  let isNum = /^\d+$/.test(dateString)
 
-    var unix = new Date(strDate).getTime();
-    var utc = new Date(strDate).toUTCString();
-
-    if (unix == null) {
-      res.json({
-        "unix" : unix,
-        "utc" : utc
-      });
-    }
-    else {
-      res.json({
-        "error" : "Invalid Date"
-      });
-    }
-    
+  if (isNum){
+    timeStamp = new Date(parseInt(dateString))
+    timeStampUnix = timeStamp.valueOf()
+    timeStampUTC = timeStamp.toUTCString() 
+  } else {
+    timeStamp = new Date(dateString)
+    timeStampUnix = timeStamp.valueOf()
+    timeStampUTC = timeStamp.toUTCString()
   }
-);
 
+  if (timeStampUTC == "Invalid Date") {
+    responObj["error"] = "Invalid Date"  
+    res.json(responObj);
+
+  } else {
+    responObj["unix"] = timeStampUnix
+    responObj["utc"] = timeStampUTC
+    res.json(responObj);
+  }
+
+});
 
 
 // listen for requests :)
